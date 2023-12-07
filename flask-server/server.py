@@ -1,18 +1,20 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, session, url_for, redirect
 import yadisk
+from flask_cors import CORS
+
 
 app = Flask(__name__)
+CORS(app)
 
-@app.route("/members")
-def members():
-    return {"members":["Member1", "Member2", "Member3"]}
+@app.route("/data", methods=['POST','GET'])
+def handle_data():
+    if request.method == 'POST':    
+        data = request.get_json()
+        print(data) ##полученные данные
+        return 'success POST!'
+    else:
+        return "GET method active"
 
-@app.route('/data', methods=['POST'])
-def receive_data():
-    data = request.json.get('data')
-    # Обработка полученных данных
-    print(data) 
-    return jsonify({'message': f'Received data: {data}'})
 
 if __name__ == "__main__":
     app.run(debug=True)
