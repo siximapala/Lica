@@ -24,6 +24,8 @@ export default function App() {
     //в консоле в браузере можно проверить отправку
     const formJson = Object.fromEntries(formData.entries());
     
+
+    //отправка json yadisk api ключа на бэк
     axios.post('http://localhost:5000/data', formJson)
     .then(response => console.log(response))
     .catch(error => console.log(error));
