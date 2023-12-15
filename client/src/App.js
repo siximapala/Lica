@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import './App.css';
 
 export default function App() {
   const client_id = '111039d461f9409a8bfabcbbbdba725b';
@@ -33,7 +34,7 @@ export default function App() {
   }
 
   return (
-    <div>
+    <div className="centered-container">
       
         
         <button onClick={handleClick}>Авторизоваться через Яндекс ID</button>,
