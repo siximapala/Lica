@@ -1,18 +1,16 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import './Start.css';
+import { useNavigate} from 'react-router-dom';
 
-export default function Start() {
+export const Start = ({setResponse}) => {
   const client_id = '111039d461f9409a8bfabcbbbdba725b';
-
-
-
+  const navigate = useNavigate();
 
   const handleClick = () => {
     const oauthUrl = 'https://oauth.yandex.ru/authorize?response_type=token&client_id='+client_id;
     window.open(oauthUrl, '_blank');
   };
-
 
   function handleSubmit(token) {
     // Чтобы браузер не перезагрузил страницу
@@ -23,10 +21,12 @@ export default function Start() {
     const formData = new FormData(form);
     //в консоли в браузере можно проверить отправку
     const formJson = Object.fromEntries(formData.entries());
-    //отправка json yadisk api ключа на бэк
+    //отправка json yadisk api ключа на бэк и получение ответа
+    
     axios.post('http://localhost:5000/data', formJson)
-    .then(response => console.log(response))
+    .then(response => setResponse(response))
     .catch(error => console.log(error));
+    navigate("/convert?123")
 
   }
   return (

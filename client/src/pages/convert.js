@@ -1,9 +1,23 @@
 import Header from '../components/Header';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Convert.css';
 
-export default function Convert(){
+export const Convert = ({response}) => {
   const [inputValue, setInputValue] = useState('');
+
+function parseJson(jsonData) {
+
+    let data = JSON.parse(jsonData);
+
+    let result = '';
+
+    for (const key in data) {
+      const file = data[key];
+      result += file['Название'] + ' - ' + file['Дата создания'] + '\n';
+    }
+
+    return result;
+  }
 
   const handleInputChange = (event) => {
     setInputValue(event.target.value);
@@ -15,8 +29,12 @@ export default function Convert(){
   };
 
   return (
-    <div className="container">
-      <div className="left-container"></div>
+    <div className="container"> 
+      <div className="left-container">
+          <div>
+        <p>{parseJson(JSON.stringify(response.data))}</p>
+        </div>
+      </div>
       <div className="right-container">
         <div className="top-section">
           <button onClick={handleConvertClick}>Преобразовать</button>

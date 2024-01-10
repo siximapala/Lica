@@ -2,6 +2,7 @@ import fitz
 import openai
 import re
 import time
+import PyPDF2
 from natasha import (
     Segmenter,
     MorphVocab,
@@ -17,19 +18,21 @@ from natasha import (
     AddrExtractor,
     Doc)
 
-openai.api_key = "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"
-model_engine = "text-davinci-003"
+openai.api_key = "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"#"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"
+model_engine = "davinci-002"
 max_tokens = 100
 
 
 #def find_substring_name(text, substring):
     #annotation_index = text.find("Аннотация")
-    #if annotation_index != -1 or text.find(substring) < annotation_index:
+    #annotation_index2 = text.find("ABSTRACT")
+    #if annotation_index != -1 or text.find(substring) < annotation_index or annotation_index2 != -1 or text.find(substring) < annotation_index2:
         #return True
 
 
 
 def get_answer_from_gpt(prompt, t = None):
+    #print(prompt[:50])
     if (t == None):
         t = 0.05
     try:
@@ -43,6 +46,7 @@ def get_answer_from_gpt(prompt, t = None):
             presence_penalty=0
         )
         answer_from_gpt = completion.choices[0].text.splitlines()
+        #print(answer_from_gpt[-1])
     except Exception as e:
         #print(e)
         return "-1"
@@ -60,25 +64,30 @@ def wrap(names):
             if len(n) == 1:
                 n = i.split('.')
                 if len(n) > 1:
-                    i = f"{n[-1]}, {n[0]}. {n[1]}."
+                    i = f"{n[-1]}, {n[0][0]}. {n[1][0]}."
                 else:
-                    i = f"{n[0]}"
+                    i = f"{n[0][0]}"
             elif len(n) == 2:
-                i = f"{n[-1]}, {n[0]}"
+                fam = n[-1].lower()
+                fam = fam[0].upper() + fam[1:]
+                #print(fam)
+                i = f"{fam}, {n[0]}"
             else:
                 i = f"{n[-1]}, {n[0]} {n[1]}"
             res.append(i)
             continue
         splitted_names = i.split()
         if len(splitted_names) == 2:
-            fam = splitted_names[0]
+            fam = splitted_names[0].lower()
+            fam = fam[0].upper() + fam[1:]
             name = splitted_names[1]
-            res.append(f"{fam}, {name[0]}.")
+            res.append(f"{fam}, {name[0][0]}.")
         if len(splitted_names) == 3:
-            fam = splitted_names[0]
+            fam = splitted_names[0].lower()
+            fam = fam[0].upper() + fam[1:]
             name = splitted_names[1]
             ot = splitted_names[2]
-            res.append(f"{fam}, {name[0]}. {ot[0]}.")
+            res.append(f"{fam}, {name[0][0]}. {ot[0][0]}.")
     return res
 
 
@@ -91,18 +100,28 @@ def extract_authors(text):
     return wrap(authors)
 
 
-def get_text_from_pdf(file):
-    doc = fitz.open(file) 
+def get_text_from_pdf(file1):
+    text = ''
+    with fitz.open(file1) as pdf_document:
+        for page_num in range(pdf_document.page_count):
+            page = pdf_document[page_num]
+            text += page.get_text()
+    #print(text)
+    text = text.replace("  ", " ")
+    return text.replace("\n", " ")
+    '''doc = fitz.open(file) 
     text = "" 
     for page in doc: 
         text += page.get_text()
-    return text
+    return text'''
 
 
 def extract_uppercase_russian_phrase(text):
 
-    matches = re.findall(r'\b(?:[А-ЯЁ]{1,}[^\w.]?\s*){2,}\b', text)
-
+    matches = re.findall(r'\b(?:[А-ЯЁ]{1,}[^\w.\n]?\s*){2,}\b', text)
+    #print(matches)
+    if len(matches[1]) > 5:
+        return matches[0].strip().replace("\n", "") + ' ' + matches[1].strip().replace("\n", "")
     return matches[0].strip().replace("\n", "")
 
 
@@ -137,6 +156,7 @@ def extract_dict_of_names(text):
         res = []
         #print(names_dict.keys())
         for i in list(names_dict.keys())[:2]:
+            #if find_substring_name(text, i):
             res.append(i)
         return wrap(res)
     return None
@@ -144,19 +164,29 @@ def extract_dict_of_names(text):
 
 
 def get_doi(text):
-    gpt = get_answer_from_gpt("Верни только численное представление doi данного текста, если не удалось, верни 0" + text[:2500], 0.01)
-    if gpt != "0" and gpt != "-1":
-        return gpt
     try:
         index = text.index("doi")
         
         doi = text[index:index + 28]
-        return doi
+        return doi.replace("doi: ", "")
     except ValueError:
+        
+        #gpt = get_answer_from_gpt("Верни только численное представление doi данного текста, если не удалось, верни 0 " + text[:2500], 0.01)
+        #if gpt != "0" and gpt != "-1":
+            #return gpt
         return "0"
+    
 
 def get_date(text):
-    return get_answer_from_gpt("Верни только дату публикации или написания данного текста в формате день.месяц.год, если найти не удалось верни 0: " + text[-2500:], 0.1)
+    get_date = re.search(r'[^-]\d{4}[^-]', text[-1000:])
+    if get_date:
+        return re.search(r'\d{4}',get_date.group()).group()
+    else:
+        get_date = re.search(r'[^-]\d{4}[^-]', text[:1000])
+        if get_date:
+            return re.search(r'\d{4}',get_date.group()).group()
+    return "0"
+    #return get_answer_from_gpt("Верни только дату публикации или написания данного текста в формате день.месяц.год, если найти не удалось верни 0: " + text[:2000], 0.5)
 
 
 
@@ -169,8 +199,8 @@ def get_title(text):
     else:
         title = title2[0].upper() + title2[1:]
         title = re.sub(r'[^a-zA-Z0-9а-яА-Я\s]', '', title)
-        title = title.replace("название", "")
-    title2 = title2.replace("текста", "").lstrip()
+        #title = title.replace("название", "")
+    #title2 = title2.replace("текста", "").lstrip()
     return title
 
 '''
@@ -218,7 +248,8 @@ def make_string(title, authors, doi, date):
         string = string + " - DOI: " + doi 
     if date != "0" and date != "-1" and not(date is None):
         string = string + " - " + date
-    return string
+    string = string.replace("  ", " ")
+    return string.replace('\n', '')
 
 def get_info_of_text(file):
     text = get_text_from_pdf(file)
@@ -226,10 +257,10 @@ def get_info_of_text(file):
     names = extract_dict_of_names(text)
     #print(names)
     #authors = extract_authors(text) 
-    authors = names
+    #authors = names
     #print(authors)
-    if authors == "-1" or authors == []:
-        authors = names
+    #if authors == "-1" or authors == []:
+        #authors = names
     doi = get_doi(text)
     if (doi == "0" or doi == "-1"):
         doi = "-1"
@@ -239,30 +270,43 @@ def get_info_of_text(file):
 
 
 
+def get_all(files):
+    #----------------------------------------------------------------------------------------------------------------------------
+    #начало мейна
 
-#----------------------------------------------------------------------------------------------------------------------------
-#начало мейна
+    #Читаем ссылки на файлы из которых будем формировать список литературы
+    #обязательно pdf
+    files = files.split(' ')
+    if files == [""]:
+        print("Error file")
+        return
+        #files = ["C:/Users/kopte/Downloads/90.Raxmatova+Gavharoy+Muxamadali+qizi_Rus_163_51.pdf", "C:/Users/kopte/Downloads/mbb283.pdf", "C:/Users/kopte/Downloads/CAJAR+0106.pdf", "C:/Users/kopte/Downloads/766846.pdf", "C:/Users/kopte/Downloads/403_30_i.pdf"]
 
-#Читаем ссылки на файлы из которых будем формировать список литературы
-#обязательно pdf
-files = input().split(' ')
-if files == [""]:
-    files = ["C:/Users/kopte/Downloads/90.Raxmatova+Gavharoy+Muxamadali+qizi_Rus_163_51.pdf", "C:/Users/kopte/Downloads/mbb283.pdf", "C:/Users/kopte/Downloads/CAJAR+0106.pdf"]
+    #читаем ссылку на файл куда будем записывать результат
+    #write_file = input()
+    #if write_file == "":
+        #write_file = "result.txt"
 
-#читаем ссылку на файл куда будем записывать результат
-write_file = input()
-if write_file == "":
-    write_file = "result.txt"
-
-#формирование списка итоговых строки, содержащих список литературы
-result = []
-for f in files:
-    result.append(get_info_of_text(f))
-result = sorted(result)
-
-#вывод результата
-#print(result)
-with open(write_file, "w") as file:
+    #формирование списка итоговых строки, содержащих список литературы
+    result = []
+    for f in files:
+        result.append(get_info_of_text(f))
+        #print(get_text_from_pdf(f))
+        #print("---------------------------------------------------------------------------------")
+    result = sorted(result)
+    string = ""
+    n = 1
     for i in result:
-        file.write(i)
-        file.write('\n')
+        string = string + f"{n}. {i}\n"
+        n += 1
+    
+    #вывод результата
+    #print(string)
+    return string
+    #with open(write_file, "w") as file:
+        #n = 1
+        #for i in result:
+            #i = f"{n}. {i}"
+            #file.write(i)
+            #file.write('\n')
+            #n += 1

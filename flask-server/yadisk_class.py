@@ -78,7 +78,12 @@ class I_yadisk:
 # y = yadisk.YaDisk("80962dc658884279a549db8f33953722", "d94d84dd23a6472d81b77aa8d121778f", "y0_AgAAAABF_QebAAr1PwAAAAD0J7_iFf1mi2K1TICY7B-19b5bS3gXuzE")
 # y.update('test.txt', '/test.txt')
 # y.check
-
+"""
 f = I_yadisk("y0_AgAAAABF_QebAAr1PwAAAAD0J7_iFf1mi2K1TICY7B-19b5bS3gXuzE")
-print(f.download_all_files())
+
+r = f.get_files_name("Lica")
+print(r)
+f.update_file("test.txt")
+f.download_from_disk("test.txt")
 del f
+"""
