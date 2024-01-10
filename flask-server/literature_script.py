@@ -3,6 +3,7 @@ import openai
 import re
 import time
 import PyPDF2
+
 from natasha import (
     Segmenter,
     MorphVocab,
@@ -100,7 +101,15 @@ def extract_authors(text):
     return wrap(authors)
 
 
-def get_text_from_pdf(file1):
+def get_text_from_pdf(file):
+    with open(file, 'rb') as file:
+        pdf_reader = PyPDF2.PdfFileReader(file)
+        text = ''
+        for page_num in range(pdf_reader.numPages):
+            page = pdf_reader.getPage(page_num)
+            text += page.extractText()
+    return text
+    '''
     text = ''
     with fitz.open(file1) as pdf_document:
         for page_num in range(pdf_document.page_count):
@@ -109,7 +118,7 @@ def get_text_from_pdf(file1):
     #print(text)
     text = text.replace("  ", " ")
     return text.replace("\n", " ")
-    '''doc = fitz.open(file) 
+    doc = fitz.open(file) 
     text = "" 
     for page in doc: 
         text += page.get_text()
@@ -276,8 +285,7 @@ def get_all(files):
 
     #Читаем ссылки на файлы из которых будем формировать список литературы
     #обязательно pdf
-    files = files.split(' ')
-    if files == [""]:
+    if files == [] or files == [""]:
         print("Error file")
         return
         #files = ["C:/Users/kopte/Downloads/90.Raxmatova+Gavharoy+Muxamadali+qizi_Rus_163_51.pdf", "C:/Users/kopte/Downloads/mbb283.pdf", "C:/Users/kopte/Downloads/CAJAR+0106.pdf", "C:/Users/kopte/Downloads/766846.pdf", "C:/Users/kopte/Downloads/403_30_i.pdf"]

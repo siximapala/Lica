@@ -1,5 +1,6 @@
 import Header from '../components/Header';
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './Convert.css';
 
 export const Convert = ({response}) => {
@@ -25,14 +26,16 @@ function parseJson(jsonData) {
 
   const handleConvertClick = () => {
     const textarea = document.querySelector('textarea'); // получаем textarea
-    textarea.value = '1'; // значение в строчке сюда прокидывать
+    axios.post('http://localhost:5000/convert', true)
+    .then(response => {textarea.value = response})
+    .catch(error => console.log(error));
   };
 
   return (
     <div className="container"> 
       <div className="left-container">
           <div>
-        <p>{parseJson(JSON.stringify(response.data))}</p>
+        
         </div>
       </div>
       <div className="right-container">
