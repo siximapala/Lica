@@ -35,7 +35,7 @@ function parseJson(jsonData) {
     <div className="container"> 
       <div className="left-container">
           <div>
-        
+       
         </div>
       </div>
       <div className="right-container">
