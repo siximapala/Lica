@@ -9,13 +9,17 @@ app = Flask(__name__)
 CORS(app)
 
 
+yandex_api_token = str()
 
 @app.route("/data", methods=['POST','GET'])
 def handle_data():
     if request.method == 'POST':    
         data = request.get_json()
-        print(data) ##полученные данные
-        yandex_api_function = I_yadisk("y0_AgAAAABF_QebAAr1PwAAAAD0J7_iFf1mi2K1TICY7B-19b5bS3gXuzE")
+
+        global yandex_api_token 
+        yandex_api_token = str(data)[20:-2:] ##полученный токен
+        yandex_api_function = I_yadisk(yandex_api_token)
+
         dataForConvert = yandex_api_function.get_files_name("Lica")
         
         return dataForConvert
@@ -26,7 +30,7 @@ def handle_data():
 def handle_convert():
     if request.method == 'POST':
         #data = request.get_data()
-        yandex_api_function = I_yadisk("y0_AgAAAABF_QebAAr1PwAAAAD0J7_iFf1mi2K1TICY7B-19b5bS3gXuzE")
+        yandex_api_function = I_yadisk(yandex_api_token)
         return get_all(yandex_api_function.download_all_files())
 
 

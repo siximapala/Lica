@@ -26,7 +26,7 @@ export const Start = ({setResponse}) => {
     axios.post('http://localhost:5000/data', formJson)
     .then(response => setResponse(response))
     .catch(error => console.log(error));
-    navigate("/convert?123")
+    navigate("/convert?123");
 
   }
   return (
