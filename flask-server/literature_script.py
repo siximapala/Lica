@@ -3,7 +3,6 @@ import openai
 import re
 import time
 import PyPDF2
-
 from natasha import (
     Segmenter,
     MorphVocab,
@@ -101,15 +100,7 @@ def extract_authors(text):
     return wrap(authors)
 
 
-def get_text_from_pdf(file):
-    with open(file, 'rb') as file:
-        pdf_reader = PyPDF2.PdfFileReader(file)
-        text = ''
-        for page_num in range(pdf_reader.numPages):
-            page = pdf_reader.getPage(page_num)
-            text += page.extractText()
-    return text
-    '''
+def get_text_from_pdf(file1):
     text = ''
     with fitz.open(file1) as pdf_document:
         for page_num in range(pdf_document.page_count):
@@ -118,7 +109,7 @@ def get_text_from_pdf(file):
     #print(text)
     text = text.replace("  ", " ")
     return text.replace("\n", " ")
-    doc = fitz.open(file) 
+    '''doc = fitz.open(file) 
     text = "" 
     for page in doc: 
         text += page.get_text()
@@ -219,7 +210,7 @@ text = get_text_from_pdf(file)
 
 #Находим название
 title = get_title(text)
-print("title: " + title)
+print("title: " + title )
 
 #Находим авторов
 names = extract_dict_of_names(text)
@@ -305,7 +296,7 @@ def get_all(files):
     string = ""
     n = 1
     for i in result:
-        string = string + f"{n}. {i}\n"
+        string = string + f"{n}. {i} \n"
         n += 1
     
     #вывод результата

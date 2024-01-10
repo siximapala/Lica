@@ -25,11 +25,14 @@ function parseJson(jsonData) {
   };
 
   const handleConvertClick = () => {
-    const textarea = document.querySelector('textarea'); // получаем textarea
+    const textarea = document.querySelector('textarea');
     axios.post('http://localhost:5000/convert', true)
-    .then(response => {textarea.value = response})
-    .catch(error => console.log(error));
-  };
+        .then(response => {
+            const convertedText = JSON.stringify(response.data).replace(/\\n/g, '\n');
+            textarea.innerHTML = convertedText;
+        })
+        .catch(error => console.log(error));
+};
 
   return (
     <div className="container"> 

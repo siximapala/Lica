@@ -17,6 +17,7 @@ def handle_data():
         print(data) ##полученные данные
         yandex_api_function = I_yadisk("y0_AgAAAABF_QebAAr1PwAAAAD0J7_iFf1mi2K1TICY7B-19b5bS3gXuzE")
         dataForConvert = yandex_api_function.get_files_name("Lica")
+        
         return dataForConvert
     else:
         return "GET method active"
