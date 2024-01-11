@@ -19,8 +19,10 @@ def handle_data():
         global yandex_api_token 
         yandex_api_token = str(data)[20:-2:] ##полученный токен
         yandex_api_function = I_yadisk(yandex_api_token)
-
-        dataForConvert = yandex_api_function.get_files_name("Lica")
+        try:
+            dataForConvert = yandex_api_function.get_files_name("Lica")
+        except:
+            return "ERROR: НЕКОРРЕКТНЫЙ ТОКЕН ИЛИ ПАПКИ 'LICA' НЕ СУЩЕСТВУЕТ НА УКАЗАННОМ ПРОСТРАНСТВЕ."
         
         return dataForConvert
     else:
@@ -29,9 +31,12 @@ def handle_data():
 @app.route("/convert", methods=['POST','GET'])
 def handle_convert():
     if request.method == 'POST':
-        #data = request.get_data()
         yandex_api_function = I_yadisk(yandex_api_token)
-        return get_all(yandex_api_function.download_all_files())
+        try:
+            converted_data = get_all(yandex_api_function.download_all_files())
+            return converted_data
+        except:
+            return "ERROR! ВЕРНИТЕСЬ НА ГЛАВНУЮ СТРАНИЦУ ДЛЯ РЕИНИЦИАЛИЗАЦИИ ТОКЕНА"
 
 
 

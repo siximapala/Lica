@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import axios from 'axios';
 import './Start.css';
 import { useNavigate} from 'react-router-dom';
@@ -15,19 +14,16 @@ export const Start = ({setResponse}) => {
   function handleSubmit(token) {
     // Чтобы браузер не перезагрузил страницу
     token.preventDefault();
-  
     // Читает данные из формы, в которую положили ключ
     const form = token.target;
     const formData = new FormData(form);
     //в консоли в браузере можно проверить отправку
     const formJson = Object.fromEntries(formData.entries());
     //отправка json yadisk api ключа на бэк и получение ответа
-    
     axios.post('http://localhost:5000/data', formJson)
     .then(response => setResponse(response))
+    .then(navigate('/convert'))
     .catch(error => console.log(error));
-    navigate("/convert?123");
-
   }
   return (
 <div className="centered-container">    

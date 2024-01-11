@@ -1,10 +1,11 @@
-import Header from '../components/Header';
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './Convert.css';
+import { useNavigate} from 'react-router-dom';
 
 export const Convert = ({response}) => {
   const [inputValue, setInputValue] = useState('');
+  const navigate = useNavigate();
 
 function parseJson(jsonData) {
     let data = JSON.parse(jsonData);
@@ -17,11 +18,16 @@ function parseJson(jsonData) {
   }
 
   if (response.data != undefined){
-    let dataToShow = parseJson(JSON.stringify(response.data));
     let infoAboutFiles = document.getElementById('filesInfo');
-    infoAboutFiles.innerHTML = dataToShow;
+    if (response.data != "ERROR: НЕКОРРЕКТНЫЙ ТОКЕН ИЛИ ПАПКИ 'LICA' НЕ СУЩЕСТВУЕТ НА УКАЗАННОМ ПРОСТРАНСТВЕ."){
+      let dataToShow = parseJson(JSON.stringify(response.data));
+      infoAboutFiles.innerHTML = dataToShow;
+    }
+    else{
+      infoAboutFiles.innerHTML = response.data;
+    }
   }
-
+  
 
 
   const handleInputChange = (event) => {
@@ -36,7 +42,14 @@ function parseJson(jsonData) {
 
     axios.post('http://localhost:5000/convert', true)
         .then(response => {
-            const convertedText = JSON.stringify(response.data).slice(1,-1).replace(/\\n/g, '\n');
+            let convertedText;
+            console.log(response.data)
+            if (response.data == "ERROR! ВЕРНИТЕСЬ НА ГЛАВНУЮ СТРАНИЦУ ДЛЯ РЕИНИЦИАЛИЗАЦИИ ТОКЕНА"){
+              convertedText = response.data
+            }
+            else {
+              convertedText = response.data.replace(/\\n/g, '\n');
+            }
             textarea.innerHTML = convertedText;
             buttonText.textContent = "Преобразовать"
             buttonText.disabled = false;
