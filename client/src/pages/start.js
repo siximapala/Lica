@@ -30,6 +30,8 @@ export const Start = ({setResponse}) => {
         <button onClick={handleClick}>Авторизоваться через Яндекс ID</button>
         <p>Нажатие на кнопку переводит на сайт, где нужно авторизироваться через ЯндексID</p>
         <p>Скопируйте OAuth токен, после чего можете закрыть страницу. Введите его в поле ниже.</p>
+        <p>Алгоритм преобразует все файлы, которые находятся в папке "Lica" на Вашем диске в вид "Списка литературы" для</p>
+        <p>курсовых работ, проектов, дипломов.</p>
         <form method="post" onSubmit={handleSubmit}>
         <label> Введите Oauth токен сюда: <input name="yadiskAPIToken" /> </label>
         <button type="submit">Подтвердить</button>
