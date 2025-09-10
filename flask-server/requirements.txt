@@ -1,0 +1,7 @@
+flask
+flask-cors
+yadisk
+PyPDF2
+pymupdf
+openai
+natasha

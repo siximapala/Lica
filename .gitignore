@@ -13,13 +13,41 @@ develop-eggs/
 dist/
 downloads/
 eggs/
+
+# Node.js / React / Frontend
+node_modules/
+build/
+dist/
+package-lock.json
+yarn.lock
+.vscode/
+
+# Logs
+npm-debug.log*
 .eggs/
 lib/
+
+# OS files
+.DS_Store
 lib64/
+
+# Env files
+.env
 parts/
 sdist/
 var/
 wheels/
+
+# Coverage
+coverage/
+
+# Misc
+*.swp
+*.swo
+
+# Jupyter
+.ipynb_checkpoints
+
 share/python-wheels/
 *.egg-info/
 .installed.cfg
